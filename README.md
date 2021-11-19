@@ -13,6 +13,6 @@
 ./benchmark -c 客户端数 -n 请求总数 -p 端口号
 
 ## 测试结果
-
+![alt](https://github.com/Ostrich96/IEG/blob/main/result/result.png)
 ## 优化改进思路
 正在进行epoll+多进程的改进，看能否提高最大并发数。尝试将发送与接受请求使用线程池进行并发处理。
