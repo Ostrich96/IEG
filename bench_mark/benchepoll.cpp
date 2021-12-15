@@ -230,6 +230,7 @@ int addEvent(client* c, int mask, funcProc* func, benchConfig* conf) {
 
   if (c->mask & READABLE) {
     e.events |= EPOLLIN;
+    
   }
   if (c->mask & WRITEABLE) {
     e.events |= EPOLLOUT;
