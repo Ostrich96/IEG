@@ -24,45 +24,54 @@
 
 ## 内容及结构
 ### 1.客户端
+```
 #define SERV_PORT 8082
 #define IPADDRESS "110.40.193.165"
 #define KEY_DEV_PATH "/dev/input/event2"
 #define MOU_DEV_PATH "/dev/input/event0"
 #define FDSIZE 10
+```
 定义云服务器地址、请求端口号、鼠标与键盘设备输入路径与epoll监听事件数目
 
 主线程进行TCP连接，connect成功后调用handle_connection()函数处理读event以及socket内容发送
-
+```
 handle_connection()创建一个epoll句柄,之后打开event，方式只读、无阻塞
 kbfd = open(KEY_DEV_PATH, O_RDONLY | O_NONBLOCK);
 msfd = open(MOU_DEV_PATH,O_RDONLY | O_NONBLOCK);
 add_event(epollfd,kbfd,EPOLLIN);
 add_event(epollfd,msfd,EPOLLIN);
+```
 之后进入epoll_wait，当有事件就绪时调用handle_events()函数
 
 handle_events()轮询到事件为EPOLLIN的事件时，调用do_read()函数
 
 do_read()主要调用函数read()从event的句柄中读出input_event事件，并且进行分类处理，当event的句柄是鼠标的event时，将其struct input_event.type +5，作为与keyboard的input_event区分
+```
     if(fd == msfd){
         et.type += 5;
     }
+```
 之后调用send()函数进行TCP传输
 为防止读出数据产生错误，先进行条件判断type是否==1、5、6、7、8，1对应来自keyboard的EV_KEY,5对应来自鼠标的EV_SYN，6对应来自鼠标的EV_KEY，7对应EV_REL相对位移，8对应EV_ABS绝对位移。因为是水平触发模式（LT），所以之后调用delete_event()与add_event()进行句柄的删除与再注册以避免一直返回事件就绪。
 
 最后关闭文件、socket句柄、epoll句柄结束
 
 ### 2.服务端
+```
 #define SERV_PORT 6667
 #define IPADDRESS "127.0.0.1"
 #define KEY_DEV_PATH "/dev/input/event1"
 #define MOU_DEV_PATH "/dev/input/event2"
 #define FDSIZE 10
+```
 监听本地6667端口，以及定义本地鼠标与键盘event路径
 
 主线程创建了一个Capture类，但也可以直接处理函数功能（只是想复习一下c++类）
+```
 listenfd = controlinput.socket_bind(IPADDRESS,SERV_PORT);
 listen(listenfd,10);
 controlinput.do_epoll(listenfd);
+```
 绑定socket端口，调用listen()将句柄转换为被动监听模式,之后调用do_epoll函数
 
 do_epoll()函数创建epoll句柄，之后进入epoll_wait()，等待事件就绪后调用handle_events()函数
