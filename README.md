@@ -79,5 +79,12 @@ do_read()函数进行tcp传输的接收，之后将其写入鼠标event或键盘
 
 ## 运行：
 1.客户端监听本地鼠标和键盘输入，利用 cat /proc/bus/input/devices 命令查看对应的鼠标和键盘event，改成对应的路径，用sudo chmod 777 event0来放开event的权限，不然可能无法读取与写入。
-2.服务端输入 ssh -T -R 8083:localhost:6666 ostrich@110.40.193.165来打开ssh反向隧道
+
+2.服务端输入 ssh -T -R 8083:localhost:6666 ostrich@110.40.193.165来打开ssh反向隧道，默认云服务器上nginx服务已打开，并且可进行端口转发操作
+
 3.服务端同样记得开放event权限与修改对应路径，不然可能无法写入。
+
+之后服务端先运行./server,客户端再运行./client则可通过公网进行数据传输与鼠标键盘的远程操控
+
+## 通信结构:
+![alt](https://github.com/Ostrich96/IEG/blob/main/result/structure.png)
